@@ -127,6 +127,77 @@ fn edge_between<'a>(before: &Vertex<'a>, after: &Vertex<'a>) -> Edge {
     );
 }
 
+fn bidi_shortest_path<'a>(forward_start: Vertex<'a>, backward_start: Vertex<'a>, size_hint: usize) {
+    let mut forward_heap: RadixHeapMap<Reverse<_>, &Vertex> = RadixHeapMap::new();
+    let mut backward_heap: RadixHeapMap<Reverse<_>, &Vertex> = RadixHeapMap::new();
+
+    let vertex_arena = Bump::new();
+
+    forward_heap.push(Reverse(0), vertex_arena.alloc(forward_start));
+    backward_heap.push(Reverse(0), vertex_arena.alloc(backward_start));
+
+    let mut forward_predecessors: FxHashMap<&Vertex, PredecessorInfo> = FxHashMap::default();
+    forward_predecessors.reserve(size_hint);
+    let mut backward_predecessors: FxHashMap<&Vertex, PredecessorInfo> = FxHashMap::default();
+    backward_predecessors.reserve(size_hint);
+
+    let mut neighbour_buf = [
+        None, None, None, None, None, None, None, None, None, None, None, None,
+    ];
+
+    let mid = loop {
+        if forward_heap.len() <= backward_heap.len() {
+            let (Reverse(distance), current) =
+                forward_heap.pop().expect("Heap should be non-empty");
+
+            if backward_predecessors.contains_key(&current) {
+                break current;
+            }
+
+            neighbours(current, &mut neighbour_buf, &vertex_arena);
+            for neighbour in &mut neighbour_buf {
+                if let Some((edge, next)) = neighbour.take() {
+                    let distance_to_next = distance + edge.cost();
+                    let found_shorter_route = match forward_predecessors.get(&next) {
+                        Some((prev_shortest, _, _)) => distance_to_next < *prev_shortest,
+                        _ => true,
+                    };
+
+                    if found_shorter_route {
+                        forward_predecessors.insert(next, (distance_to_next, current, edge));
+
+                        forward_heap.push(Reverse(distance_to_next), next);
+                    }
+                }
+            }
+        } else {
+            let (Reverse(distance), current) =
+                backward_heap.pop().expect("Heap should be non-empty");
+
+            if forward_predecessors.contains_key(&current) {
+                break current;
+            }
+
+            neighbours(current, &mut neighbour_buf, &vertex_arena);
+            for neighbour in &mut neighbour_buf {
+                if let Some((edge, next)) = neighbour.take() {
+                    let distance_to_next = distance + edge.cost();
+                    let found_shorter_route = match forward_predecessors.get(&next) {
+                        Some((prev_shortest, _, _)) => distance_to_next < *prev_shortest,
+                        _ => true,
+                    };
+
+                    if found_shorter_route {
+                        forward_predecessors.insert(next, (distance_to_next, current, edge));
+
+                        forward_heap.push(Reverse(distance_to_next), next);
+                    }
+                }
+            }
+        }
+    };
+}
+
 /// What is the total number of AST nodes?
 fn node_count(root: Option<&Syntax>) -> u32 {
     let mut node = root;
