@@ -325,6 +325,58 @@ impl<'a> Syntax<'a> {
     }
 }
 
+/// Create reversed copies of `roots`, but reuse the same IDs (both
+/// unique ID and content ID).
+pub fn reversed_copy<'a>(arena: &'a Arena<Syntax<'a>>, roots: &[&Syntax]) -> Vec<&'a Syntax<'a>> {
+    let mut res = vec![];
+    for node in roots.iter().rev() {
+        let reversed_node = match node {
+            List {
+                info,
+                open_position,
+                open_content,
+                children,
+                close_position,
+                close_content,
+                ..
+            } => {
+                let rev_children = reversed_copy(arena, children);
+                let list = Syntax::new_list(
+                    arena,
+                    open_content,
+                    open_position.clone(),
+                    rev_children,
+                    close_content,
+                    close_position.clone(),
+                );
+
+                // TODO: split out init for non-ID parts, i.e. pointer/metadata init.
+                list.info().unique_id.set(info.unique_id.get());
+                list.info().content_id.set(info.content_id.get());
+
+                list
+            }
+            Atom {
+                info,
+                position,
+                content,
+                kind,
+                ..
+            } => {
+                let atom = Syntax::new_atom(arena, position.clone(), content, *kind);
+
+                atom.info().unique_id.set(info.unique_id.get());
+                atom.info().content_id.set(info.content_id.get());
+
+                atom
+            }
+        };
+        res.push(reversed_node);
+    }
+
+    res
+}
+
 /// Initialise all the fields in `SyntaxInfo`.
 pub fn init_all_info<'a>(lhs_roots: &[&'a Syntax<'a>], rhs_roots: &[&'a Syntax<'a>]) {
     init_info(lhs_roots, rhs_roots);
