@@ -374,6 +374,9 @@ pub fn reversed_copy<'a>(arena: &'a Arena<Syntax<'a>>, roots: &[&Syntax]) -> Vec
         res.push(reversed_node);
     }
 
+    init_info_single(&res);
+    init_next_prev(&res);
+
     res
 }
 
