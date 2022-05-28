@@ -313,8 +313,11 @@ fn diff_file_content(
                     init_next_prev(&rhs_section_nodes);
 
                     mark_syntax(
+                        &arena,
                         lhs_section_nodes.get(0).copied(),
                         rhs_section_nodes.get(0).copied(),
+                        &lhs_section_nodes,
+                        &rhs_section_nodes,
                         &mut change_map,
                     );
 

@@ -6,12 +6,13 @@ use std::{cmp::Reverse, env};
 use crate::{
     diff::changes::ChangeMap,
     diff::graph::{neighbours, populate_change_map, Edge, Vertex},
-    parse::syntax::Syntax,
+    parse::syntax::{reversed_copy, Syntax},
 };
 use bumpalo::Bump;
 use itertools::Itertools;
 use radix_heap::RadixHeapMap;
 use rustc_hash::FxHashMap;
+use typed_arena::Arena;
 
 type PredecessorInfo<'a, 'b> = (u64, &'b Vertex<'a>);
 
@@ -127,7 +128,11 @@ fn edge_between<'a>(before: &Vertex<'a>, after: &Vertex<'a>) -> Edge {
     );
 }
 
-fn bidi_shortest_path<'a>(forward_start: Vertex<'a>, backward_start: Vertex<'a>, size_hint: usize) {
+pub fn bidi_shortest_path<'a>(
+    forward_start: Vertex<'a>,
+    backward_start: Vertex<'a>,
+    size_hint: usize,
+) {
     let mut forward_heap: RadixHeapMap<Reverse<_>, &Vertex> = RadixHeapMap::new();
     let mut backward_heap: RadixHeapMap<Reverse<_>, &Vertex> = RadixHeapMap::new();
 
@@ -182,20 +187,22 @@ fn bidi_shortest_path<'a>(forward_start: Vertex<'a>, backward_start: Vertex<'a>,
             for neighbour in &mut neighbour_buf {
                 if let Some((edge, next)) = neighbour.take() {
                     let distance_to_next = distance + edge.cost();
-                    let found_shorter_route = match forward_predecessors.get(&next) {
+                    let found_shorter_route = match backward_predecessors.get(&next) {
                         Some((prev_shortest, _, _)) => distance_to_next < *prev_shortest,
                         _ => true,
                     };
 
                     if found_shorter_route {
-                        forward_predecessors.insert(next, (distance_to_next, current, edge));
+                        backward_predecessors.insert(next, (distance_to_next, current, edge));
 
-                        forward_heap.push(Reverse(distance_to_next), next);
+                        backward_heap.push(Reverse(distance_to_next), next);
                     }
                 }
             }
         }
     };
+
+    dbg!(mid);
 }
 
 /// What is the total number of AST nodes?
@@ -230,8 +237,11 @@ fn tree_count(root: Option<&Syntax>) -> u32 {
 }
 
 pub fn mark_syntax<'a>(
+    arena: &'a Arena<Syntax<'a>>,
     lhs_syntax: Option<&'a Syntax<'a>>,
     rhs_syntax: Option<&'a Syntax<'a>>,
+    lhs_roots: &[&'a Syntax<'a>],
+    rhs_roots: &[&'a Syntax<'a>],
     change_map: &mut ChangeMap<'a>,
 ) {
     let lhs_node_count = node_count(lhs_syntax) as usize;
@@ -277,6 +287,13 @@ pub fn mark_syntax<'a>(
             .take(print_length)
             .collect_vec()
     );
+
+    let lhs_rev_roots = reversed_copy(arena, lhs_roots);
+    let rhs_rev_roots = reversed_copy(arena, rhs_roots);
+    let rev_start = Vertex::new(lhs_rev_roots.get(0).copied(), rhs_rev_roots.get(0).copied());
+    let forward_start = Vertex::new(lhs_syntax, rhs_syntax);
+
+    bidi_shortest_path(forward_start, rev_start, size_hint);
 
     populate_change_map(&route, change_map);
 }
