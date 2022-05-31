@@ -164,12 +164,12 @@ pub fn bidi_shortest_path<'a>(
                 if let Some((edge, next)) = neighbour.take() {
                     let distance_to_next = distance + edge.cost();
                     let found_shorter_route = match forward_predecessors.get(&next) {
-                        Some((prev_shortest, _, _)) => distance_to_next < *prev_shortest,
+                        Some((prev_shortest, _)) => distance_to_next < *prev_shortest,
                         _ => true,
                     };
 
                     if found_shorter_route {
-                        forward_predecessors.insert(next, (distance_to_next, current, edge));
+                        forward_predecessors.insert(next, (distance_to_next, current));
 
                         forward_heap.push(Reverse(distance_to_next), next);
                     }
@@ -188,12 +188,12 @@ pub fn bidi_shortest_path<'a>(
                 if let Some((edge, next)) = neighbour.take() {
                     let distance_to_next = distance + edge.cost();
                     let found_shorter_route = match backward_predecessors.get(&next) {
-                        Some((prev_shortest, _, _)) => distance_to_next < *prev_shortest,
+                        Some((prev_shortest, _)) => distance_to_next < *prev_shortest,
                         _ => true,
                     };
 
                     if found_shorter_route {
-                        backward_predecessors.insert(next, (distance_to_next, current, edge));
+                        backward_predecessors.insert(next, (distance_to_next, current));
 
                         backward_heap.push(Reverse(distance_to_next), next);
                     }
