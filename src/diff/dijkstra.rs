@@ -113,6 +113,8 @@ fn edge_between<'a>(before: &Vertex<'a>, after: &Vertex<'a>) -> Edge {
     ];
 
     let vertex_arena = Bump::new();
+    dbg!(before);
+    dbg!(after);
     neighbours(before, &mut neighbour_buf, &vertex_arena);
     for neighbour in &mut neighbour_buf {
         if let Some((edge, next)) = neighbour.take() {
@@ -132,7 +134,7 @@ pub fn bidi_shortest_path<'a>(
     forward_start: Vertex<'a>,
     backward_start: Vertex<'a>,
     size_hint: usize,
-) {
+) -> Vec<Vertex<'a>> {
     let mut forward_heap: RadixHeapMap<Reverse<_>, &Vertex> = RadixHeapMap::new();
     let mut backward_heap: RadixHeapMap<Reverse<_>, &Vertex> = RadixHeapMap::new();
 
@@ -170,7 +172,6 @@ pub fn bidi_shortest_path<'a>(
 
                     if found_shorter_route {
                         forward_predecessors.insert(next, (distance_to_next, current));
-
                         forward_heap.push(Reverse(distance_to_next), next);
                     }
                 }
@@ -194,7 +195,6 @@ pub fn bidi_shortest_path<'a>(
 
                     if found_shorter_route {
                         backward_predecessors.insert(next, (distance_to_next, current));
-
                         backward_heap.push(Reverse(distance_to_next), next);
                     }
                 }
@@ -202,7 +202,26 @@ pub fn bidi_shortest_path<'a>(
         }
     };
 
-    dbg!(mid);
+    let mut current = mid;
+    let mut forward_route: Vec<Vertex> = vec![mid.clone()];
+    while let Some((_, node)) = forward_predecessors.remove(&current) {
+        forward_route.push(node.clone());
+        current = node;
+    }
+
+    let mut current = mid;
+    let mut backward_route: Vec<Vertex> = vec![];
+    while let Some((_, node)) = backward_predecessors.remove(&current) {
+        backward_route.push(node.clone());
+        current = node;
+    }
+
+    forward_route.reverse();
+    forward_route.append(&mut backward_route);
+
+    // forward_route.pop();
+
+    forward_route
 }
 
 /// What is the total number of AST nodes?
@@ -293,7 +312,10 @@ pub fn mark_syntax<'a>(
     let rev_start = Vertex::new(lhs_rev_roots.get(0).copied(), rhs_rev_roots.get(0).copied());
     let forward_start = Vertex::new(lhs_syntax, rhs_syntax);
 
-    bidi_shortest_path(forward_start, rev_start, size_hint);
+    let vertex_route2 = bidi_shortest_path(forward_start, rev_start, size_hint);
+    // let route2 = shortest_path_with_edges(&vertex_route2);
+
+    dbg!(vertex_route2.last());
 
     populate_change_map(&route, change_map);
 }
