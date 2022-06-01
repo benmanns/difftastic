@@ -314,8 +314,6 @@ fn diff_file_content(
 
                     mark_syntax(
                         &arena,
-                        lhs_section_nodes.get(0).copied(),
-                        rhs_section_nodes.get(0).copied(),
                         &lhs_section_nodes,
                         &rhs_section_nodes,
                         &mut change_map,

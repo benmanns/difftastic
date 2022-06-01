@@ -257,12 +257,13 @@ fn tree_count(root: Option<&Syntax>) -> u32 {
 
 pub fn mark_syntax<'a>(
     arena: &'a Arena<Syntax<'a>>,
-    lhs_syntax: Option<&'a Syntax<'a>>,
-    rhs_syntax: Option<&'a Syntax<'a>>,
     lhs_roots: &[&'a Syntax<'a>],
     rhs_roots: &[&'a Syntax<'a>],
     change_map: &mut ChangeMap<'a>,
 ) {
+    let lhs_syntax = lhs_roots.get(0).copied();
+    let rhs_syntax = rhs_roots.get(0).copied();
+
     let lhs_node_count = node_count(lhs_syntax) as usize;
     let rhs_node_count = node_count(rhs_syntax) as usize;
     info!(
@@ -727,7 +728,7 @@ mod tests {
         init_all_info(&[lhs], &[rhs]);
 
         let mut change_map = ChangeMap::default();
-        mark_syntax(Some(lhs), Some(rhs), &mut change_map);
+        mark_syntax(&arena, &[lhs], &[rhs], &mut change_map);
 
         assert_eq!(change_map.get(lhs), Some(ChangeKind::Unchanged(rhs)));
         assert_eq!(change_map.get(rhs), Some(ChangeKind::Unchanged(lhs)));
@@ -741,7 +742,7 @@ mod tests {
         init_all_info(&[lhs], &[rhs]);
 
         let mut change_map = ChangeMap::default();
-        mark_syntax(Some(lhs), Some(rhs), &mut change_map);
+        mark_syntax(&arena, &[lhs], &[rhs], &mut change_map);
         assert_eq!(change_map.get(lhs), Some(ChangeKind::Novel));
         assert_eq!(change_map.get(rhs), Some(ChangeKind::Novel));
     }
