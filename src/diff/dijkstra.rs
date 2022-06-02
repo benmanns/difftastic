@@ -113,8 +113,6 @@ fn edge_between<'a>(before: &Vertex<'a>, after: &Vertex<'a>) -> Edge {
     ];
 
     let vertex_arena = Bump::new();
-    dbg!(before);
-    dbg!(after);
     neighbours(before, &mut neighbour_buf, &vertex_arena);
     for neighbour in &mut neighbour_buf {
         if let Some((edge, next)) = neighbour.take() {
@@ -217,9 +215,9 @@ pub fn bidi_shortest_path<'a>(
     }
 
     forward_route.reverse();
-    forward_route.append(&mut backward_route);
-
-    // forward_route.pop();
+    if backward_route.len() > 1 {
+        forward_route.append(&mut backward_route);
+    }
 
     forward_route
 }
@@ -314,11 +312,9 @@ pub fn mark_syntax<'a>(
     let forward_start = Vertex::new(lhs_syntax, rhs_syntax);
 
     let vertex_route2 = bidi_shortest_path(forward_start, rev_start, size_hint);
-    // let route2 = shortest_path_with_edges(&vertex_route2);
+    let route2 = shortest_path_with_edges(&vertex_route2);
 
-    dbg!(vertex_route2.last());
-
-    populate_change_map(&route, change_map);
+    populate_change_map(&route2, change_map);
 }
 
 #[cfg(test)]
