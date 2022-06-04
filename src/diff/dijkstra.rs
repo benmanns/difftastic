@@ -200,22 +200,23 @@ pub fn bidi_shortest_path<'a>(
         }
     };
 
-    let mut current = mid;
-    let mut forward_route: Vec<Vertex> = vec![mid.clone()];
+    let mut current = dbg!(mid);
+    let mut forward_route: Vec<Vertex> = vec![];
     while let Some((_, node)) = forward_predecessors.remove(&current) {
         forward_route.push(node.clone());
         current = node;
     }
+    forward_route.reverse();
 
     let mut current = mid;
-    let mut backward_route: Vec<Vertex> = vec![];
+    let mut backward_route: Vec<Vertex> = vec![mid.clone()];
     while let Some((_, node)) = backward_predecessors.remove(&current) {
         backward_route.push(node.clone());
         current = node;
     }
 
-    forward_route.reverse();
-    if backward_route.len() > 1 {
+    if !mid.is_end() {
+        forward_route.pop();
         forward_route.append(&mut backward_route);
     }
 
@@ -277,34 +278,6 @@ pub fn mark_syntax<'a>(
     // so we don't spend too much time re-hashing and expanding the
     // predecessors hashmap.
     let size_hint = lhs_node_count * rhs_node_count;
-
-    let start = Vertex::new(lhs_syntax, rhs_syntax);
-    let route = shortest_path(start, size_hint);
-
-    let print_length = if env::var("DFT_VERBOSE").is_ok() {
-        50
-    } else {
-        5
-    };
-    debug!(
-        "Initial {} items on path: {:#?}",
-        print_length,
-        route
-            .iter()
-            .map(|x| {
-                format!(
-                    "{:20} {:20} --- {:3} {:?}",
-                    x.1.lhs_syntax
-                        .map_or_else(|| "None".into(), Syntax::dbg_content),
-                    x.1.rhs_syntax
-                        .map_or_else(|| "None".into(), Syntax::dbg_content),
-                    x.0.cost(),
-                    x.0,
-                )
-            })
-            .take(print_length)
-            .collect_vec()
-    );
 
     let lhs_rev_roots = reversed_copy(arena, lhs_roots);
     let rhs_rev_roots = reversed_copy(arena, rhs_roots);
