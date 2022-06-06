@@ -14,6 +14,8 @@ use radix_heap::RadixHeapMap;
 use rustc_hash::FxHashMap;
 use typed_arena::Arena;
 
+use super::graph::convert_backwards;
+
 type PredecessorInfo<'a, 'b> = (u64, &'b Vertex<'a>);
 
 /// Return the shortest route from `start` to the end vertex.
@@ -138,7 +140,7 @@ pub fn bidi_shortest_path<'a>(
 
     let vertex_arena = Bump::new();
 
-    forward_heap.push(Reverse(0), vertex_arena.alloc(forward_start));
+    forward_heap.push(Reverse(0), vertex_arena.alloc(forward_start.clone()));
     backward_heap.push(Reverse(0), vertex_arena.alloc(backward_start));
 
     let mut forward_predecessors: FxHashMap<&Vertex, PredecessorInfo> = FxHashMap::default();
@@ -200,8 +202,8 @@ pub fn bidi_shortest_path<'a>(
         }
     };
 
-    let mut current = dbg!(mid);
-    let mut forward_route: Vec<Vertex> = vec![];
+    let mut current = mid;
+    let mut forward_route: Vec<Vertex> = vec![mid.clone()];
     while let Some((_, node)) = forward_predecessors.remove(&current) {
         forward_route.push(node.clone());
         current = node;
@@ -209,15 +211,18 @@ pub fn bidi_shortest_path<'a>(
     forward_route.reverse();
 
     let mut current = mid;
-    let mut backward_route: Vec<Vertex> = vec![mid.clone()];
+    let mut backward_route: Vec<Vertex> = vec![];
     while let Some((_, node)) = backward_predecessors.remove(&current) {
         backward_route.push(node.clone());
         current = node;
     }
 
     if !mid.is_end() {
-        forward_route.pop();
-        forward_route.append(&mut backward_route);
+        let mut converted_backward = backward_route
+            .iter()
+            .map(|v| convert_backwards(v, &forward_start))
+            .collect();
+        forward_route.append(&mut converted_backward);
     }
 
     forward_route

@@ -58,21 +58,36 @@ pub struct Vertex<'a> {
 ///
 /// Is this possible? Given a list, should we move into the children
 /// or over the whole list?
-fn convert_backwards<'a, 'b>(
-    alloc: &'b Bump,
-    forward_start: &Vertex<'a>,
-    backward_vertex: &Vertex<'a>,
-) -> &'b Vertex<'a> {
-    let lhs_syntax = match backward_vertex.lhs_syntax {
+pub fn convert_backwards<'a>(v: &Vertex<'a>, forward_start: &Vertex<'a>) -> Vertex<'a> {
+    let lhs_syntax = match v.lhs_syntax {
         Some(backward_lhs) => backward_lhs.next_sibling(),
-        None => {
-            (match backward_vertex.lhs_parent {
-                Some(_) => todo!(),
-                None => forward_start.lhs_syntax,
-            })
-        }
+        None => match v.lhs_parent {
+            Some(lhs_parent) => match lhs_parent {
+                Syntax::List { children, .. } => children.first().copied(),
+                Syntax::Atom { .. } => unreachable!("An atom is never a parent node"),
+            },
+            None => forward_start.lhs_syntax,
+        },
     };
-    todo!()
+    let rhs_syntax = match v.rhs_syntax {
+        Some(backward_rhs) => backward_rhs.next_sibling(),
+        None => match v.rhs_parent {
+            Some(rhs_parent) => match rhs_parent {
+                Syntax::List { children, .. } => children.first().copied(),
+                Syntax::Atom { .. } => unreachable!("An atom is never a parent node"),
+            },
+            None => forward_start.rhs_syntax,
+        },
+    };
+
+    Vertex {
+        lhs_syntax,
+        rhs_syntax,
+        parents: v.parents.clone(),
+        lhs_parent: v.lhs_parent,
+        rhs_parent: v.rhs_parent,
+        can_pop_either: v.can_pop_either,
+    }
 }
 
 impl<'a> PartialEq for Vertex<'a> {
