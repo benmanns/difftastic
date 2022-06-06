@@ -53,6 +53,28 @@ pub struct Vertex<'a> {
     can_pop_either: bool,
 }
 
+/// Convert backward vertices to forward vertices by moving both syntax
+/// node pointers forward to the next sibling.
+///
+/// Is this possible? Given a list, should we move into the children
+/// or over the whole list?
+fn convert_backwards<'a, 'b>(
+    alloc: &'b Bump,
+    forward_start: &Vertex<'a>,
+    backward_vertex: &Vertex<'a>,
+) -> &'b Vertex<'a> {
+    let lhs_syntax = match backward_vertex.lhs_syntax {
+        Some(backward_lhs) => backward_lhs.next_sibling(),
+        None => (match backward_vertex.lhs_parent_id {
+            Some(_) => todo!(),
+            None => forward_start.lhs_syntax,
+        }),
+    };
+    todo!()
+}
+
+
+
 impl<'a> PartialEq for Vertex<'a> {
     fn eq(&self, other: &Self) -> bool {
         self.lhs_syntax.map(|node| node.id()) == other.lhs_syntax.map(|node| node.id())
