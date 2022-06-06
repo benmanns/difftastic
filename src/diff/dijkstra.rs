@@ -290,9 +290,34 @@ pub fn mark_syntax<'a>(
     let forward_start = Vertex::new(lhs_syntax, rhs_syntax);
 
     let vertex_route2 = bidi_shortest_path(forward_start, rev_start, size_hint);
-    let route2 = shortest_path_with_edges(&vertex_route2);
+    let route = shortest_path_with_edges(&vertex_route2);
 
-    populate_change_map(&route2, change_map);
+    let print_length = if env::var("DFT_VERBOSE").is_ok() {
+        50
+    } else {
+        5
+    };
+    debug!(
+        "Initial {} items on path: {:#?}",
+        print_length,
+        route
+            .iter()
+            .map(|x| {
+                format!(
+                    "{:20} {:20} --- {:3} {:?}",
+                    x.1.lhs_syntax
+                        .map_or_else(|| "None".into(), Syntax::dbg_content),
+                    x.1.rhs_syntax
+                        .map_or_else(|| "None".into(), Syntax::dbg_content),
+                    x.0.cost(),
+                    x.0,
+                )
+            })
+            .take(print_length)
+            .collect_vec()
+    );
+
+    populate_change_map(&route, change_map);
 }
 
 #[cfg(test)]
