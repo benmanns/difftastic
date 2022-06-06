@@ -11,7 +11,7 @@ use strsim::normalized_levenshtein;
 
 use crate::{
     diff::changes::{insert_deep_unchanged, ChangeKind, ChangeMap},
-    parse::syntax::{AtomKind, Syntax, SyntaxId},
+    parse::syntax::{AtomKind, Syntax},
 };
 use Edge::*;
 
@@ -48,8 +48,8 @@ pub struct Vertex<'a> {
     pub lhs_syntax: Option<&'a Syntax<'a>>,
     pub rhs_syntax: Option<&'a Syntax<'a>>,
     parents: Stack<EnteredDelimiter<'a>>,
-    lhs_parent_id: Option<SyntaxId>,
-    rhs_parent_id: Option<SyntaxId>,
+    lhs_parent: Option<&'a Syntax<'a>>,
+    rhs_parent: Option<&'a Syntax<'a>>,
     can_pop_either: bool,
 }
 
@@ -65,15 +65,15 @@ fn convert_backwards<'a, 'b>(
 ) -> &'b Vertex<'a> {
     let lhs_syntax = match backward_vertex.lhs_syntax {
         Some(backward_lhs) => backward_lhs.next_sibling(),
-        None => (match backward_vertex.lhs_parent_id {
-            Some(_) => todo!(),
-            None => forward_start.lhs_syntax,
-        }),
+        None => {
+            (match backward_vertex.lhs_parent {
+                Some(_) => todo!(),
+                None => forward_start.lhs_syntax,
+            })
+        }
     };
     todo!()
 }
-
-
 
 impl<'a> PartialEq for Vertex<'a> {
     fn eq(&self, other: &Self) -> bool {
@@ -95,8 +95,8 @@ impl<'a> PartialEq for Vertex<'a> {
             // Handling this properly would require considering many
             // more vertices to be distinct, exponentially increasing
             // the graph size relative to tree depth.
-            && self.lhs_parent_id == other.lhs_parent_id
-            && self.rhs_parent_id == other.rhs_parent_id
+            && self.lhs_parent.map(|node| node.id()) == other.lhs_parent.map(|node| node.id())
+            && self.rhs_parent.map(|node| node.id()) == other.rhs_parent.map(|node| node.id())
             // We do want to distinguish whether we can pop each side
             // independently though. Without this, if we find a case
             // where we can pop sides together, we don't consider the
@@ -112,8 +112,9 @@ impl<'a> Hash for Vertex<'a> {
         self.lhs_syntax.map(|node| node.id()).hash(state);
         self.rhs_syntax.map(|node| node.id()).hash(state);
 
-        self.lhs_parent_id.hash(state);
-        self.rhs_parent_id.hash(state);
+        self.lhs_parent.map(|node| node.id()).hash(state);
+        self.rhs_parent.map(|node| node.id()).hash(state);
+
         self.can_pop_either.hash(state);
     }
 }
@@ -278,8 +279,8 @@ impl<'a> Vertex<'a> {
             lhs_syntax,
             rhs_syntax,
             parents,
-            lhs_parent_id: None,
-            rhs_parent_id: None,
+            lhs_parent: None,
+            rhs_parent: None,
             can_pop_either: false,
         }
     }
@@ -378,8 +379,8 @@ pub fn neighbours<'a, 'b>(
                     rhs_syntax: rhs_parent.next_sibling(),
                     can_pop_either: can_pop_either_parent(&parents_next),
                     parents: parents_next,
-                    lhs_parent_id: lhs_parent.parent().map(Syntax::id),
-                    rhs_parent_id: rhs_parent.parent().map(Syntax::id),
+                    lhs_parent: lhs_parent.parent(),
+                    rhs_parent: rhs_parent.parent(),
                 }),
             ));
             i += 1;
@@ -398,8 +399,8 @@ pub fn neighbours<'a, 'b>(
                     rhs_syntax: v.rhs_syntax,
                     can_pop_either: can_pop_either_parent(&parents_next),
                     parents: parents_next,
-                    lhs_parent_id: lhs_parent.parent().map(Syntax::id),
-                    rhs_parent_id: v.rhs_parent_id,
+                    lhs_parent: lhs_parent.parent(),
+                    rhs_parent: v.rhs_parent,
                 }),
             ));
             i += 1;
@@ -418,8 +419,8 @@ pub fn neighbours<'a, 'b>(
                     rhs_syntax: rhs_parent.next_sibling(),
                     can_pop_either: can_pop_either_parent(&parents_next),
                     parents: parents_next,
-                    lhs_parent_id: v.lhs_parent_id,
-                    rhs_parent_id: rhs_parent.parent().map(Syntax::id),
+                    lhs_parent: v.lhs_parent,
+                    rhs_parent: rhs_parent.parent(),
                 }),
             ));
             i += 1;
@@ -439,8 +440,8 @@ pub fn neighbours<'a, 'b>(
                     lhs_syntax: lhs_syntax.next_sibling(),
                     rhs_syntax: rhs_syntax.next_sibling(),
                     parents: v.parents.clone(),
-                    lhs_parent_id: v.lhs_parent_id,
-                    rhs_parent_id: v.rhs_parent_id,
+                    lhs_parent: v.lhs_parent,
+                    rhs_parent: v.rhs_parent,
                     can_pop_either: v.can_pop_either,
                 }),
             ));
@@ -480,8 +481,8 @@ pub fn neighbours<'a, 'b>(
                         lhs_syntax: lhs_next,
                         rhs_syntax: rhs_next,
                         parents: parents_next,
-                        lhs_parent_id: Some(lhs_syntax.id()),
-                        rhs_parent_id: Some(rhs_syntax.id()),
+                        lhs_parent: Some(lhs_syntax),
+                        rhs_parent: Some(rhs_syntax),
                         can_pop_either: false,
                     }),
                 ));
@@ -513,8 +514,8 @@ pub fn neighbours<'a, 'b>(
                         lhs_syntax: lhs_syntax.next_sibling(),
                         rhs_syntax: rhs_syntax.next_sibling(),
                         parents: v.parents.clone(),
-                        lhs_parent_id: v.lhs_parent_id,
-                        rhs_parent_id: v.rhs_parent_id,
+                        lhs_parent: v.lhs_parent,
+                        rhs_parent: v.rhs_parent,
                         can_pop_either: v.can_pop_either,
                     }),
                 ));
@@ -537,8 +538,8 @@ pub fn neighbours<'a, 'b>(
                         lhs_syntax: lhs_syntax.next_sibling(),
                         rhs_syntax: v.rhs_syntax,
                         parents: v.parents.clone(),
-                        lhs_parent_id: v.lhs_parent_id,
-                        rhs_parent_id: v.rhs_parent_id,
+                        lhs_parent: v.lhs_parent,
+                        rhs_parent: v.rhs_parent,
                         can_pop_either: v.can_pop_either,
                     }),
                 ));
@@ -558,8 +559,8 @@ pub fn neighbours<'a, 'b>(
                         lhs_syntax: lhs_next,
                         rhs_syntax: v.rhs_syntax,
                         parents: parents_next,
-                        lhs_parent_id: Some(lhs_syntax.id()),
-                        rhs_parent_id: v.rhs_parent_id,
+                        lhs_parent: Some(lhs_syntax),
+                        rhs_parent: v.rhs_parent,
                         can_pop_either: true,
                     }),
                 ));
@@ -580,8 +581,8 @@ pub fn neighbours<'a, 'b>(
                         lhs_syntax: v.lhs_syntax,
                         rhs_syntax: rhs_syntax.next_sibling(),
                         parents: v.parents.clone(),
-                        lhs_parent_id: v.lhs_parent_id,
-                        rhs_parent_id: v.rhs_parent_id,
+                        lhs_parent: v.lhs_parent,
+                        rhs_parent: v.rhs_parent,
                         can_pop_either: v.can_pop_either,
                     }),
                 ));
@@ -601,8 +602,8 @@ pub fn neighbours<'a, 'b>(
                         lhs_syntax: v.lhs_syntax,
                         rhs_syntax: rhs_next,
                         parents: parents_next,
-                        lhs_parent_id: v.lhs_parent_id,
-                        rhs_parent_id: Some(rhs_syntax.id()),
+                        lhs_parent: v.lhs_parent,
+                        rhs_parent: Some(rhs_syntax),
                         can_pop_either: true,
                     }),
                 ));
