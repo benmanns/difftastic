@@ -381,12 +381,12 @@
                     <span class="number">0</span>
                 } <span class="kw">else</span> {
                     <span class="ident">region_start</span> <span class="op">-</span> <span class="ident">line_start</span>
-                },
+                } <span class="kw">as</span> <span class="ident">u32</span>,
                 <span class="ident">end_col</span>: <span class="kw">if</span> <span class="ident">region_end</span> <span class="op">&lt;</span> <span class="ident">line_end</span> {
                     <span class="ident">region_end</span> <span class="op">-</span> <span class="ident">line_start</span>
                 } <span class="kw">else</span> {
                     <span class="ident">line_end</span> <span class="op">-</span> <span class="ident">line_start</span>
-                },
+                } <span class="kw">as</span> <span class="ident">u32</span>,
             });
         }
 

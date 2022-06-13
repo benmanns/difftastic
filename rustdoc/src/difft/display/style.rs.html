@@ -502,6 +502,12 @@
 <span id="502">502</span>
 <span id="503">503</span>
 <span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Apply colours and styling to strings.</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -613,32 +619,35 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">String::with_capacity</span>(<span class="ident">part</span>.<span class="ident">len</span>());
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">prev_style_end</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">for</span> (<span class="ident">span</span>, <span class="ident">style</span>) <span class="kw">in</span> <span class="ident">styles</span> {
+            <span class="kw">let</span> <span class="ident">start_col</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">start_col</span> <span class="kw">as</span> <span class="ident">usize</span>;
+            <span class="kw">let</span> <span class="ident">end_col</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">end_col</span> <span class="kw">as</span> <span class="ident">usize</span>;
+
             <span class="comment">// The remaining spans are beyond the end of this part.</span>
-            <span class="kw">if</span> <span class="ident">span</span>.<span class="ident">start_col</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">part_start</span> <span class="op">+</span> <span class="ident">byte_len</span>(<span class="kw-2">&amp;</span><span class="ident">part</span>) {
+            <span class="kw">if</span> <span class="ident">start_col</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">part_start</span> <span class="op">+</span> <span class="ident">byte_len</span>(<span class="kw-2">&amp;</span><span class="ident">part</span>) {
                 <span class="kw">break</span>;
             }
 
             <span class="comment">// If there&#39;s an unstyled gap before the next span.</span>
-            <span class="kw">if</span> <span class="ident">span</span>.<span class="ident">start_col</span> <span class="op">&gt;</span> <span class="ident">part_start</span> <span class="op">&amp;&amp;</span> <span class="ident">prev_style_end</span> <span class="op">&lt;</span> <span class="ident">span</span>.<span class="ident">start_col</span> {
+            <span class="kw">if</span> <span class="ident">start_col</span> <span class="op">&gt;</span> <span class="ident">part_start</span> <span class="op">&amp;&amp;</span> <span class="ident">prev_style_end</span> <span class="op">&lt;</span> <span class="ident">start_col</span> {
                 <span class="comment">// Then append that text without styling.</span>
                 <span class="kw">let</span> <span class="ident">unstyled_start</span> <span class="op">=</span> <span class="ident">max</span>(<span class="ident">prev_style_end</span>, <span class="ident">part_start</span>);
                 <span class="ident">res</span>.<span class="ident">push_str</span>(<span class="ident">substring_by_byte</span>(
                     <span class="kw-2">&amp;</span><span class="ident">part</span>,
                     <span class="ident">unstyled_start</span> <span class="op">-</span> <span class="ident">part_start</span>,
-                    <span class="ident">span</span>.<span class="ident">start_col</span> <span class="op">-</span> <span class="ident">part_start</span>,
+                    <span class="ident">start_col</span> <span class="op">-</span> <span class="ident">part_start</span>,
                 ));
             }
 
             <span class="comment">// Apply style to the substring in this span.</span>
-            <span class="kw">if</span> <span class="ident">span</span>.<span class="ident">end_col</span> <span class="op">&gt;</span> <span class="ident">part_start</span> {
+            <span class="kw">if</span> <span class="ident">end_col</span> <span class="op">&gt;</span> <span class="ident">part_start</span> {
                 <span class="kw">let</span> <span class="ident">span_s</span> <span class="op">=</span> <span class="ident">substring_by_byte</span>(
                     <span class="kw-2">&amp;</span><span class="ident">part</span>,
                     <span class="ident">max</span>(<span class="number">0</span>, <span class="ident">span</span>.<span class="ident">start_col</span> <span class="kw">as</span> <span class="ident">isize</span> <span class="op">-</span> <span class="ident">part_start</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="kw">as</span> <span class="ident">usize</span>,
-                    <span class="ident">min</span>(<span class="ident">byte_len</span>(<span class="kw-2">&amp;</span><span class="ident">part</span>), <span class="ident">span</span>.<span class="ident">end_col</span> <span class="op">-</span> <span class="ident">part_start</span>),
+                    <span class="ident">min</span>(<span class="ident">byte_len</span>(<span class="kw-2">&amp;</span><span class="ident">part</span>), <span class="ident">end_col</span> <span class="op">-</span> <span class="ident">part_start</span>),
                 );
                 <span class="ident">res</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">span_s</span>.<span class="ident">style</span>(<span class="kw-2">*</span><span class="ident">style</span>).<span class="ident">to_string</span>());
             }
-            <span class="ident">prev_style_end</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">end_col</span>;
+            <span class="ident">prev_style_end</span> <span class="op">=</span> <span class="ident">end_col</span>;
         }
 
         <span class="comment">// Ensure that prev_style_end is at least at the start of this</span>
@@ -671,21 +680,24 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">String::with_capacity</span>(<span class="ident">line</span>.<span class="ident">len</span>());
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">for</span> (<span class="ident">span</span>, <span class="ident">style</span>) <span class="kw">in</span> <span class="ident">styles</span> {
+        <span class="kw">let</span> <span class="ident">start_col</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">start_col</span> <span class="kw">as</span> <span class="ident">usize</span>;
+        <span class="kw">let</span> <span class="ident">end_col</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">end_col</span> <span class="kw">as</span> <span class="ident">usize</span>;
+
         <span class="comment">// The remaining spans are beyond the end of this line. This</span>
         <span class="comment">// occurs when we truncate the line to fit on the display.</span>
-        <span class="kw">if</span> <span class="ident">span</span>.<span class="ident">start_col</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">line_bytes</span> {
+        <span class="kw">if</span> <span class="ident">start_col</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">line_bytes</span> {
             <span class="kw">break</span>;
         }
 
         <span class="comment">// Unstyled text before the next span.</span>
-        <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">span</span>.<span class="ident">start_col</span> {
-            <span class="ident">res</span>.<span class="ident">push_str</span>(<span class="ident">substring_by_byte</span>(<span class="ident">line</span>, <span class="ident">i</span>, <span class="ident">span</span>.<span class="ident">start_col</span>));
+        <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">start_col</span> {
+            <span class="ident">res</span>.<span class="ident">push_str</span>(<span class="ident">substring_by_byte</span>(<span class="ident">line</span>, <span class="ident">i</span>, <span class="ident">start_col</span>));
         }
 
         <span class="comment">// Apply style to the substring in this span.</span>
-        <span class="kw">let</span> <span class="ident">span_s</span> <span class="op">=</span> <span class="ident">substring_by_byte</span>(<span class="ident">line</span>, <span class="ident">span</span>.<span class="ident">start_col</span>, <span class="ident">min</span>(<span class="ident">line_bytes</span>, <span class="ident">span</span>.<span class="ident">end_col</span>));
+        <span class="kw">let</span> <span class="ident">span_s</span> <span class="op">=</span> <span class="ident">substring_by_byte</span>(<span class="ident">line</span>, <span class="ident">start_col</span>, <span class="ident">min</span>(<span class="ident">line_bytes</span>, <span class="ident">end_col</span>));
         <span class="ident">res</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">span_s</span>.<span class="ident">style</span>(<span class="kw-2">*</span><span class="ident">style</span>).<span class="ident">to_string</span>());
-        <span class="ident">i</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">end_col</span>;
+        <span class="ident">i</span> <span class="op">=</span> <span class="ident">end_col</span>;
     }
 
     <span class="comment">// Unstyled text after the last span.</span>
