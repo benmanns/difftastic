@@ -861,7 +861,7 @@
     <span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
     <span class="kw">use</span> <span class="ident">typed_arena::Arena</span>;
 
-    <span class="kw">fn</span> <span class="ident">pos_helper</span>(<span class="ident">line</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SingleLineSpan</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">pos_helper</span>(<span class="ident">line</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SingleLineSpan</span><span class="op">&gt;</span> {
         <span class="macro">vec!</span>[<span class="ident">SingleLineSpan</span> {
             <span class="ident">line</span>: <span class="ident">line</span>.<span class="ident">into</span>(),
             <span class="ident">start_col</span>: <span class="number">0</span>,
@@ -869,7 +869,7 @@
         }]
     }
 
-    <span class="kw">fn</span> <span class="ident">col_helper</span>(<span class="ident">line</span>: <span class="ident">usize</span>, <span class="ident">col</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SingleLineSpan</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">col_helper</span>(<span class="ident">line</span>: <span class="ident">u32</span>, <span class="ident">col</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SingleLineSpan</span><span class="op">&gt;</span> {
         <span class="macro">vec!</span>[<span class="ident">SingleLineSpan</span> {
             <span class="ident">line</span>: <span class="ident">line</span>.<span class="ident">into</span>(),
             <span class="ident">start_col</span>: <span class="ident">col</span>,

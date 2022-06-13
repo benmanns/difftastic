@@ -1273,7 +1273,7 @@
 
 <span class="doccomment">/// Return the distance between two syntax nodes, as a tuple of number</span>
 <span class="doccomment">/// of lines and number of columns.</span>
-<span class="kw">fn</span> <span class="ident">distance_between</span>(<span class="ident">prev</span>: <span class="kw-2">&amp;</span><span class="ident">Syntax</span>, <span class="ident">next</span>: <span class="kw-2">&amp;</span><span class="ident">Syntax</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">u32</span>) {
+<span class="kw">fn</span> <span class="ident">distance_between</span>(<span class="ident">prev</span>: <span class="kw-2">&amp;</span><span class="ident">Syntax</span>, <span class="ident">next</span>: <span class="kw-2">&amp;</span><span class="ident">Syntax</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">u32</span>, <span class="ident">u32</span>) {
     <span class="kw">let</span> <span class="ident">prev_pos</span> <span class="op">=</span> <span class="ident">prev</span>.<span class="ident">last_line_span</span>();
     <span class="kw">let</span> <span class="ident">next_pos</span> <span class="op">=</span> <span class="ident">next</span>.<span class="ident">first_line_span</span>();
 

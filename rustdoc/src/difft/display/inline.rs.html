@@ -107,6 +107,14 @@
 <span id="107">107</span>
 <span id="108">108</span>
 <span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Inline, or &quot;unified&quot; diff display.</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -185,7 +193,11 @@
 
         <span class="kw">for</span> (<span class="ident">lhs_line</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">before_lines</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">lhs_line</span>) <span class="op">=</span> <span class="ident">lhs_line</span> {
-                <span class="macro">println!</span>(<span class="string">&quot;{}   {}&quot;</span>, <span class="ident">format_line_num</span>(<span class="ident">lhs_line</span>), <span class="ident">lhs_lines</span>[<span class="ident">lhs_line</span>.<span class="number">0</span>]);
+                <span class="macro">println!</span>(
+                    <span class="string">&quot;{}   {}&quot;</span>,
+                    <span class="ident">format_line_num</span>(<span class="ident">lhs_line</span>),
+                    <span class="ident">lhs_lines</span>[<span class="ident">lhs_line</span>.<span class="ident">as_usize</span>()]
+                );
             }
         }
 
@@ -194,7 +206,7 @@
                 <span class="macro">println!</span>(
                     <span class="string">&quot;{}   {}&quot;</span>,
                     <span class="ident">format_line_num</span>(<span class="kw-2">*</span><span class="ident">lhs_line</span>).<span class="ident">red</span>().<span class="ident">bold</span>(),
-                    <span class="ident">lhs_lines</span>[<span class="ident">lhs_line</span>.<span class="number">0</span>]
+                    <span class="ident">lhs_lines</span>[<span class="ident">lhs_line</span>.<span class="ident">as_usize</span>()]
                 );
             }
         }
@@ -203,14 +215,18 @@
                 <span class="macro">println!</span>(
                     <span class="string">&quot;   {}{}&quot;</span>,
                     <span class="ident">format_line_num</span>(<span class="kw-2">*</span><span class="ident">rhs_line</span>).<span class="ident">green</span>().<span class="ident">bold</span>(),
-                    <span class="ident">rhs_lines</span>[<span class="ident">rhs_line</span>.<span class="number">0</span>]
+                    <span class="ident">rhs_lines</span>[<span class="ident">rhs_line</span>.<span class="ident">as_usize</span>()]
                 );
             }
         }
 
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">rhs_line</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">after_lines</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">rhs_line</span>) <span class="op">=</span> <span class="ident">rhs_line</span> {
-                <span class="macro">println!</span>(<span class="string">&quot;   {}{}&quot;</span>, <span class="ident">format_line_num</span>(<span class="kw-2">*</span><span class="ident">rhs_line</span>), <span class="ident">rhs_lines</span>[<span class="ident">rhs_line</span>.<span class="number">0</span>]);
+                <span class="macro">println!</span>(
+                    <span class="string">&quot;   {}{}&quot;</span>,
+                    <span class="ident">format_line_num</span>(<span class="kw-2">*</span><span class="ident">rhs_line</span>),
+                    <span class="ident">rhs_lines</span>[<span class="ident">rhs_line</span>.<span class="ident">as_usize</span>()]
+                );
             }
         }
         <span class="macro">println!</span>();
