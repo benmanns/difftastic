@@ -767,6 +767,7 @@
 <span id="767">767</span>
 <span id="768">768</span>
 <span id="769">769</span>
+<span id="770">770</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Side-by-side (two column) display of diffs.</span>
 
 <span class="kw">use</span> <span class="ident">owo_colors</span>::{<span class="ident">OwoColorize</span>, <span class="ident">Style</span>};
@@ -788,7 +789,8 @@
 
 <span class="kw">const</span> <span class="ident">SPACER</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot; &quot;</span>;
 
-<span class="doccomment">/// Split `s` on \n or \r\n. Always returns a non-empty vec.</span>
+<span class="doccomment">/// Split `s` on \n or \r\n. Always returns a non-empty vec. Does not</span>
+<span class="doccomment">/// include the trailing newline.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This differs from `str::lines`, which considers `&quot;&quot;` to be zero</span>
 <span class="doccomment">/// lines and `&quot;foo\n&quot;` to be one line.</span>
