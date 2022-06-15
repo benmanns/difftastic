@@ -751,23 +751,6 @@
 <span id="751">751</span>
 <span id="752">752</span>
 <span id="753">753</span>
-<span id="754">754</span>
-<span id="755">755</span>
-<span id="756">756</span>
-<span id="757">757</span>
-<span id="758">758</span>
-<span id="759">759</span>
-<span id="760">760</span>
-<span id="761">761</span>
-<span id="762">762</span>
-<span id="763">763</span>
-<span id="764">764</span>
-<span id="765">765</span>
-<span id="766">766</span>
-<span id="767">767</span>
-<span id="768">768</span>
-<span id="769">769</span>
-<span id="770">770</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Side-by-side (two column) display of diffs.</span>
 
 <span class="kw">use</span> <span class="ident">owo_colors</span>::{<span class="ident">OwoColorize</span>, <span class="ident">Style</span>};
@@ -781,30 +764,13 @@
     <span class="ident">display::style</span>::{
         <span class="self">self</span>, <span class="ident">apply_colors</span>, <span class="ident">color_positions</span>, <span class="ident">novel_style</span>, <span class="ident">split_and_apply</span>, <span class="ident">BackgroundColor</span>,
     },
-    <span class="ident">lines</span>::{<span class="ident">codepoint_len</span>, <span class="ident">format_line_num</span>, <span class="ident">LineNumber</span>},
+    <span class="ident">lines</span>::{<span class="ident">codepoint_len</span>, <span class="ident">format_line_num</span>, <span class="ident">LineNumber</span>, <span class="ident">split_on_newlines</span>},
     <span class="ident">options</span>::{<span class="ident">DisplayMode</span>, <span class="ident">DisplayOptions</span>},
     <span class="ident">parse::syntax</span>::{<span class="ident">zip_pad_shorter</span>, <span class="ident">MatchedPos</span>},
     <span class="ident">positions::SingleLineSpan</span>,
 };
 
 <span class="kw">const</span> <span class="ident">SPACER</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot; &quot;</span>;
-
-<span class="doccomment">/// Split `s` on \n or \r\n. Always returns a non-empty vec. Does not</span>
-<span class="doccomment">/// include the trailing newline.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This differs from `str::lines`, which considers `&quot;&quot;` to be zero</span>
-<span class="doccomment">/// lines and `&quot;foo\n&quot;` to be one line.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">split_on_newlines</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-    <span class="ident">s</span>.<span class="ident">split</span>(<span class="string">&#39;\n&#39;</span>)
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">l</span>.<span class="ident">strip_suffix</span>(<span class="string">&#39;\r&#39;</span>) {
-                <span class="ident">l</span>
-            } <span class="kw">else</span> {
-                <span class="ident">l</span>
-            }
-        })
-        .<span class="ident">collect</span>()
-}
 
 <span class="kw">fn</span> <span class="ident">format_line_num_padded</span>(<span class="ident">line_num</span>: <span class="ident">LineNumber</span>, <span class="ident">column_width</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
     <span class="macro">format!</span>(

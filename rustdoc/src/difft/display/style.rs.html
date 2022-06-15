@@ -514,13 +514,11 @@
 <span id="514">514</span>
 <span id="515">515</span>
 <span id="516">516</span>
-<span id="517">517</span>
-<span id="518">518</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Apply colours and styling to strings.</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">constants::Side</span>,
-    <span class="ident">lines</span>::{<span class="ident">byte_len</span>, <span class="ident">codepoint_len</span>, <span class="ident">LineNumber</span>},
+    <span class="ident">lines</span>::{<span class="ident">byte_len</span>, <span class="ident">codepoint_len</span>, <span class="ident">LineNumber</span>, <span class="ident">split_on_newlines</span>},
     <span class="ident">options::DisplayOptions</span>,
     <span class="ident">parse::syntax</span>::{<span class="ident">AtomKind</span>, <span class="ident">MatchKind</span>, <span class="ident">MatchedPos</span>, <span class="ident">TokenKind</span>},
     <span class="ident">positions::SingleLineSpan</span>,
@@ -528,8 +526,6 @@
 <span class="kw">use</span> <span class="ident">owo_colors</span>::{<span class="ident">OwoColorize</span>, <span class="ident">Style</span>};
 <span class="kw">use</span> <span class="ident">rustc_hash::FxHashMap</span>;
 <span class="kw">use</span> <span class="ident">std::cmp</span>::{<span class="ident">max</span>, <span class="ident">min</span>};
-
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::side_by_side::split_on_newlines</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BackgroundColor</span> {

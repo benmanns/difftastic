@@ -121,21 +121,17 @@
 <span id="121">121</span>
 <span id="122">122</span>
 <span id="123">123</span>
-<span id="124">124</span>
-<span id="125">125</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Inline, or &quot;unified&quot; diff display.</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">display::context</span>::{<span class="ident">calculate_after_context</span>, <span class="ident">calculate_before_context</span>, <span class="ident">opposite_positions</span>},
     <span class="ident">display::hunks::Hunk</span>,
     <span class="ident">display::style</span>::{<span class="self">self</span>, <span class="ident">apply_colors</span>},
-    <span class="ident">lines</span>::{<span class="ident">format_line_num</span>, <span class="ident">MaxLine</span>},
+    <span class="ident">lines</span>::{<span class="ident">format_line_num</span>, <span class="ident">MaxLine</span>, <span class="ident">split_on_newlines</span>},
     <span class="ident">options::DisplayOptions</span>,
     <span class="ident">parse::syntax::MatchedPos</span>,
 };
 <span class="kw">use</span> <span class="ident">owo_colors::colored</span>::<span class="kw-2">*</span>;
-
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::side_by_side::split_on_newlines</span>;
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">print</span>(
     <span class="ident">lhs_src</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
