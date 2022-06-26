@@ -157,9 +157,9 @@ pub fn bidi_shortest_path<'a>(
             let (Reverse(distance), current) =
                 forward_heap.pop().expect("Heap should be non-empty");
 
-            if backward_predecessors.contains_key(&current) {
-                break current;
-            }
+            // if let Some((d, _)) = backward_predecessors.get(&current) {
+            //     break current;
+            // }
 
             neighbours(current, &mut neighbour_buf, &vertex_arena);
             for neighbour in &mut neighbour_buf {
