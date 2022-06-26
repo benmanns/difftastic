@@ -152,7 +152,7 @@ pub fn bidi_shortest_path<'a>(
         None, None, None, None, None, None, None, None, None, None, None, None,
     ];
 
-    let mid = loop {
+    let (forward_mid, backward_mid) = loop {
         if forward_heap.len() <= backward_heap.len() && !forward_heap.is_empty() {
             let (Reverse(distance), current) =
                 forward_heap.pop().expect("Heap should be non-empty");
@@ -180,8 +180,9 @@ pub fn bidi_shortest_path<'a>(
             let (Reverse(distance), current) =
                 backward_heap.pop().expect("Heap should be non-empty");
 
-            if forward_predecessors.contains_key(&current) {
-                break current;
+            let current_equivalent = convert_backwards(current, &forward_start);
+            if let Some((_, _)) = forward_predecessors.get_key_value(&current_equivalent) {
+                break (current, current_equivalent);
             }
 
             neighbours(current, &mut neighbour_buf, &vertex_arena);
@@ -202,22 +203,22 @@ pub fn bidi_shortest_path<'a>(
         }
     };
 
-    let mut current = mid;
-    let mut forward_route: Vec<Vertex> = vec![mid.clone()];
+    let mut current = forward_mid;
+    let mut forward_route: Vec<Vertex> = vec![forward_mid.clone()];
     while let Some((_, node)) = forward_predecessors.remove(&current) {
         forward_route.push(node.clone());
         current = node;
     }
     forward_route.reverse();
 
-    let mut current = mid;
+    let mut current = &backward_mid;
     let mut backward_route: Vec<Vertex> = vec![];
     while let Some((_, node)) = backward_predecessors.remove(&current) {
         backward_route.push(node.clone());
         current = node;
     }
 
-    if !mid.is_end() {
+    if !forward_mid.is_end() {
         let mut converted_backward = backward_route
             .iter()
             .map(|v| convert_backwards(v, &forward_start))
