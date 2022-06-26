@@ -153,7 +153,7 @@ pub fn bidi_shortest_path<'a>(
     ];
 
     let mid = loop {
-        if forward_heap.len() <= backward_heap.len() {
+        if forward_heap.len() <= backward_heap.len() && !forward_heap.is_empty() {
             let (Reverse(distance), current) =
                 forward_heap.pop().expect("Heap should be non-empty");
 

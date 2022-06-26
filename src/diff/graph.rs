@@ -626,10 +626,10 @@ pub fn neighbours<'a, 'b>(
             }
         }
     }
-    assert!(
-        i > 0,
-        "Must always find some next steps if node is not the end"
-    );
+    // assert!(
+    //     i > 0,
+    //     "Must always find some next steps if node is not the end"
+    // );
 }
 
 pub fn populate_change_map<'a>(route: &[(Edge, Vertex<'a>)], change_map: &mut ChangeMap<'a>) {
