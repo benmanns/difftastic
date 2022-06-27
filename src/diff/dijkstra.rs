@@ -152,7 +152,7 @@ pub fn bidi_shortest_path<'a>(
         None, None, None, None, None, None, None, None, None, None, None, None,
     ];
 
-    let (forward_mid, backward_mid) = loop {
+    let (backward_mid, forward_mid) = loop {
         if forward_heap.len() <= backward_heap.len() && !forward_heap.is_empty() {
             let (Reverse(distance), current) =
                 forward_heap.pop().expect("Heap should be non-empty");
@@ -180,9 +180,9 @@ pub fn bidi_shortest_path<'a>(
             let (Reverse(distance), current) =
                 backward_heap.pop().expect("Heap should be non-empty");
 
-            let current_equivalent = convert_backwards(current, &forward_start);
-            if let Some((_, _)) = forward_predecessors.get_key_value(&current_equivalent) {
-                break (current, current_equivalent);
+            let forward_current = convert_backwards(current, &forward_start);
+            if let Some((_, _)) = forward_predecessors.get_key_value(&forward_current) {
+                break (current, forward_current);
             }
 
             neighbours(current, &mut neighbour_buf, &vertex_arena);
@@ -203,7 +203,7 @@ pub fn bidi_shortest_path<'a>(
         }
     };
 
-    let mut current = forward_mid;
+    let mut current = &forward_mid;
     let mut forward_route: Vec<Vertex> = vec![forward_mid.clone()];
     while let Some((_, node)) = forward_predecessors.remove(&current) {
         forward_route.push(node.clone());
@@ -211,7 +211,7 @@ pub fn bidi_shortest_path<'a>(
     }
     forward_route.reverse();
 
-    let mut current = &backward_mid;
+    let mut current = backward_mid;
     let mut backward_route: Vec<Vertex> = vec![];
     while let Some((_, node)) = backward_predecessors.remove(&current) {
         backward_route.push(node.clone());
@@ -223,15 +223,6 @@ pub fn bidi_shortest_path<'a>(
         .map(|v| convert_backwards(v, &forward_start))
         .collect();
     forward_route.append(&mut converted_backward);
-
-    let has_end = match forward_route.last() {
-        Some(node) => node.is_end(),
-        _ => false,
-    };
-
-    if !has_end {
-        forward_route.push(Vertex::new(None, None));
-    }
 
     forward_route
 }
