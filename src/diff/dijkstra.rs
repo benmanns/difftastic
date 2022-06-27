@@ -218,12 +218,19 @@ pub fn bidi_shortest_path<'a>(
         current = node;
     }
 
-    if !forward_mid.is_end() {
-        let mut converted_backward = backward_route
-            .iter()
-            .map(|v| convert_backwards(v, &forward_start))
-            .collect();
-        forward_route.append(&mut converted_backward);
+    let mut converted_backward = backward_route
+        .iter()
+        .map(|v| convert_backwards(v, &forward_start))
+        .collect();
+    forward_route.append(&mut converted_backward);
+
+    let has_end = match forward_route.last() {
+        Some(node) => node.is_end(),
+        _ => false,
+    };
+
+    if !has_end {
+        forward_route.push(Vertex::new(None, None));
     }
 
     forward_route
