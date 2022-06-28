@@ -181,8 +181,19 @@ pub fn bidi_shortest_path<'a>(
                 backward_heap.pop().expect("Heap should be non-empty");
 
             let forward_current = convert_backwards(current, &forward_start);
-            if let Some((_, _)) = forward_predecessors.get_key_value(&forward_current) {
-                break (current, forward_current);
+            if let Some((_, forward_info)) = forward_predecessors.get_key_value(&forward_current) {
+                // We've found a route, but is it the shortest route? Are we done?
+                // https://stackoverflow.com/a/36132043/509706
+                let forward_distance = forward_info.0;
+                let total_distance = distance + forward_distance;
+
+                let Reverse(forward_top) = forward_heap.top().unwrap_or(Reverse(0));
+                let Reverse(backward_top) = backward_heap.top().unwrap_or(Reverse(0));
+
+                if forward_top + backward_top > total_distance {
+                    // We've found the shortest route.
+                    break (current, forward_current);
+                }
             }
 
             neighbours(current, &mut neighbour_buf, &vertex_arena);
