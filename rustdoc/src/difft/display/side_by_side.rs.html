@@ -726,31 +726,6 @@
 <span id="726">726</span>
 <span id="727">727</span>
 <span id="728">728</span>
-<span id="729">729</span>
-<span id="730">730</span>
-<span id="731">731</span>
-<span id="732">732</span>
-<span id="733">733</span>
-<span id="734">734</span>
-<span id="735">735</span>
-<span id="736">736</span>
-<span id="737">737</span>
-<span id="738">738</span>
-<span id="739">739</span>
-<span id="740">740</span>
-<span id="741">741</span>
-<span id="742">742</span>
-<span id="743">743</span>
-<span id="744">744</span>
-<span id="745">745</span>
-<span id="746">746</span>
-<span id="747">747</span>
-<span id="748">748</span>
-<span id="749">749</span>
-<span id="750">750</span>
-<span id="751">751</span>
-<span id="752">752</span>
-<span id="753">753</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Side-by-side (two column) display of diffs.</span>
 
 <span class="kw">use</span> <span class="ident">owo_colors</span>::{<span class="ident">OwoColorize</span>, <span class="ident">Style</span>};
@@ -1410,31 +1385,6 @@
         );
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">res_lines</span>.<span class="ident">join</span>(<span class="string">&quot;&quot;</span>);
         <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">10</span>);
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_split_line_empty</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">split_on_newlines</span>(<span class="string">&quot;&quot;</span>), <span class="macro">vec!</span>[<span class="string">&quot;&quot;</span>]);
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_split_line_single</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">split_on_newlines</span>(<span class="string">&quot;foo&quot;</span>), <span class="macro">vec!</span>[<span class="string">&quot;foo&quot;</span>]);
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_split_line_with_newline</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">split_on_newlines</span>(<span class="string">&quot;foo\nbar&quot;</span>), <span class="macro">vec!</span>[<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>]);
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_split_line_with_crlf</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">split_on_newlines</span>(<span class="string">&quot;foo\r\nbar&quot;</span>), <span class="macro">vec!</span>[<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>]);
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_split_line_with_trailing_newline</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">split_on_newlines</span>(<span class="string">&quot;foo\nbar\n&quot;</span>), <span class="macro">vec!</span>[<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>, <span class="string">&quot;&quot;</span>]);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>

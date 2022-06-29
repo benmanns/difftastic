@@ -299,6 +299,31 @@
 <span id="299">299</span>
 <span id="300">300</span>
 <span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Manipulate lines of text and groups of lines.</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::positions::SingleLineSpan</span>;
@@ -598,6 +623,31 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">codepoint_len_non_ascii</span>() {
         <span class="macro">assert_eq!</span>(<span class="ident">codepoint_len</span>(<span class="string">&quot;ƒoo&quot;</span>), <span class="number">3</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_split_line_empty</span>() {
+        <span class="macro">assert_eq!</span>(<span class="ident">split_on_newlines</span>(<span class="string">&quot;&quot;</span>), <span class="macro">vec!</span>[<span class="string">&quot;&quot;</span>]);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_split_line_single</span>() {
+        <span class="macro">assert_eq!</span>(<span class="ident">split_on_newlines</span>(<span class="string">&quot;foo&quot;</span>), <span class="macro">vec!</span>[<span class="string">&quot;foo&quot;</span>]);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_split_line_with_newline</span>() {
+        <span class="macro">assert_eq!</span>(<span class="ident">split_on_newlines</span>(<span class="string">&quot;foo\nbar&quot;</span>), <span class="macro">vec!</span>[<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>]);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_split_line_with_crlf</span>() {
+        <span class="macro">assert_eq!</span>(<span class="ident">split_on_newlines</span>(<span class="string">&quot;foo\r\nbar&quot;</span>), <span class="macro">vec!</span>[<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>]);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_split_line_with_trailing_newline</span>() {
+        <span class="macro">assert_eq!</span>(<span class="ident">split_on_newlines</span>(<span class="string">&quot;foo\nbar\n&quot;</span>), <span class="macro">vec!</span>[<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>, <span class="string">&quot;&quot;</span>]);
     }
 }
 </code></pre></div>
