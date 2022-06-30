@@ -15,15 +15,34 @@ use rustc_hash::FxHashMap;
 
 type PredecessorInfo<'a, 'b> = (u64, &'b Vertex<'a>);
 
+fn estimated_distance_remaining(v: &Vertex) -> u64 {
+    let lhs_num_after = match v.lhs_syntax {
+        Some(lhs_syntax) => lhs_syntax.num_after() as u64,
+        None => 0,
+    };
+    let rhs_num_after = match v.rhs_syntax {
+        Some(rhs_syntax) => rhs_syntax.num_after() as u64,
+        None => 0,
+    };
+    // Best case scenario: we match up all of these.
+    let max_common = std::cmp::min(lhs_num_after, rhs_num_after);
+
+    max_common
+        * Edge::UnchangedNode {
+            depth_difference: 0,
+        }
+        .cost()
+}
+
 /// Return the shortest route from `start` to the end vertex.
 fn shortest_vertex_path(start: Vertex, size_hint: usize) -> Vec<Vertex> {
     // We want to visit nodes with the shortest distance first, but
     // RadixHeapMap is a max-heap. Ensure nodes are wrapped with
     // Reverse to flip comparisons.
-    let mut heap: RadixHeapMap<Reverse<_>, &Vertex> = RadixHeapMap::new();
+    let mut heap: RadixHeapMap<Reverse<_>, (u64, &Vertex)> = RadixHeapMap::new();
 
     let vertex_arena = Bump::new();
-    heap.push(Reverse(0), vertex_arena.alloc(start.clone()));
+    heap.push(Reverse(0), (0, vertex_arena.alloc(start.clone())));
 
     // TODO: this grows very big. Consider using IDA* to reduce memory
     // usage.
@@ -35,7 +54,7 @@ fn shortest_vertex_path(start: Vertex, size_hint: usize) -> Vec<Vertex> {
     ];
     let end = loop {
         match heap.pop() {
-            Some((Reverse(distance), current)) => {
+            Some((Reverse(_estimated_total_distance), (distance, current))) => {
                 if current.is_end() {
                     break current;
                 }
@@ -52,7 +71,10 @@ fn shortest_vertex_path(start: Vertex, size_hint: usize) -> Vec<Vertex> {
                         if found_shorter_route {
                             predecessors.insert(next, (distance_to_next, current));
 
-                            heap.push(Reverse(distance_to_next), next);
+                            heap.push(
+                                Reverse(distance_to_next + estimated_distance_remaining(next)),
+                                (distance_to_next, next),
+                            );
                         }
                     }
                 }
